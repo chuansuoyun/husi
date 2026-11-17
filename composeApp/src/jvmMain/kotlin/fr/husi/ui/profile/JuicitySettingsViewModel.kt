@@ -14,7 +14,9 @@ internal data class JuicityUiState(
     override val customOutbound: String = "",
     val name: String = "",
     val address: String = "127.0.0.1",
-    val port: Int = 443,
+    /** Single port or range list, e.g. "443" / "20000-30000". */
+    val ports: String = "443",
+    val hopInterval: String = "30s",
     val uuid: String = "",
     val password: String = "",
     val sni: String = "",
@@ -36,7 +38,8 @@ internal class JuicitySettingsViewModel : ProfileEditorViewModel<JuicityBean>() 
                 customOutbound = customOutboundJson,
                 name = name,
                 address = serverAddress,
-                port = serverPort,
+                ports = serverPorts.ifBlank { serverPort.toString() },
+                hopInterval = hopInterval.ifBlank { "30s" },
                 uuid = uuid,
                 password = password,
                 sni = sni,
@@ -53,7 +56,14 @@ internal class JuicitySettingsViewModel : ProfileEditorViewModel<JuicityBean>() 
         customOutboundJson = state.customOutbound
         name = state.name
         serverAddress = state.address
-        serverPort = state.port
+        serverPorts = state.ports.ifBlank { "443" }
+        val first = serverPorts
+            .split(',', '-')
+            .map { it.trim() }
+            .firstOrNull { it.isNotEmpty() }
+            ?.toIntOrNull()
+        serverPort = first?.takeIf { it in 1..65535 } ?: 443
+        hopInterval = state.hopInterval.ifBlank { "30s" }
         uuid = state.uuid
         password = state.password
         sni = state.sni
@@ -77,8 +87,12 @@ internal class JuicitySettingsViewModel : ProfileEditorViewModel<JuicityBean>() 
         uiState.update { it.copy(address = address) }
     }
 
-    fun setPort(port: Int) {
-        uiState.update { it.copy(port = port) }
+    fun setPorts(ports: String) {
+        uiState.update { it.copy(ports = ports) }
+    }
+
+    fun setHopInterval(interval: String) {
+        uiState.update { it.copy(hopInterval = interval) }
     }
 
     fun setUuid(uuid: String) {
@@ -100,5 +114,4 @@ internal class JuicitySettingsViewModel : ProfileEditorViewModel<JuicityBean>() 
     fun setPinSha256(sha256: String) {
         uiState.update { it.copy(pinSha256 = sha256) }
     }
-
 }
