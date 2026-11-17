@@ -2,14 +2,14 @@ package fr.husi.ui.profile
 
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
-import fr.husi.compose.PasswordPreference
-import fr.husi.compose.PreferenceCategory
+import fr.husi.compose.DurationTextField
 import fr.husi.compose.IconMaskColors
 import fr.husi.compose.IconMaskShapes
 import fr.husi.compose.MaskedIcon
+import fr.husi.compose.PasswordPreference
+import fr.husi.compose.PreferenceCategory
 import fr.husi.compose.SwitchPreference
 import fr.husi.compose.TextFieldPreference
-import fr.husi.compose.UIntegerTextField
 import fr.husi.compose.material3.Text
 import fr.husi.compose.preferenceGroup
 import fr.husi.ktx.contentOrUnset
@@ -18,6 +18,7 @@ import fr.husi.resources.allow_insecure
 import fr.husi.resources.copyright
 import fr.husi.resources.directions_boat
 import fr.husi.resources.emoji_symbols
+import fr.husi.resources.hop_interval
 import fr.husi.resources.lock_open
 import fr.husi.resources.password
 import fr.husi.resources.person
@@ -31,6 +32,7 @@ import fr.husi.resources.security_settings
 import fr.husi.resources.server_address
 import fr.husi.resources.server_port
 import fr.husi.resources.sni
+import fr.husi.resources.timelapse
 import fr.husi.resources.uuid
 import fr.husi.ui.NavRoutes
 import org.jetbrains.compose.resources.stringResource
@@ -90,29 +92,40 @@ private fun LazyListScope.juicitySettings(
             title = { Text(stringResource(Res.string.server_address)) },
             textToValue = { it },
             icon = {
-                MaskedIcon(
-                    Res.drawable.router,
-                    color = IconMaskColors.IconLightBlue,
-                )
+                MaskedIcon(Res.drawable.router, color = IconMaskColors.IconCyan)
             },
             summary = { Text(contentOrUnset(uiState.address)) },
             valueToText = { it },
         )
+        // Supports single port or ranges: 443 / 20000-30000 / 443,20000-20010
         TextFieldPreference(
-            value = uiState.port,
-            onValueChange = { viewModel.setPort(it) },
+            value = uiState.ports,
+            onValueChange = { viewModel.setPorts(it) },
             title = { Text(stringResource(Res.string.server_port)) },
-            textToValue = { it.toIntOrNull() ?: 443 },
+            textToValue = { it },
             icon = {
                 MaskedIcon(
                     Res.drawable.directions_boat,
-                    color = IconMaskColors.IconLightOrange,
+                    color = IconMaskColors.IconCyan,
                 )
             },
-            summary = { Text(contentOrUnset(uiState.port)) },
-            valueToText = { it.toString() },
+            summary = { Text(contentOrUnset(uiState.ports)) },
+            valueToText = { it },
+        )
+        TextFieldPreference(
+            value = uiState.hopInterval,
+            onValueChange = { viewModel.setHopInterval(it) },
+            title = { Text(stringResource(Res.string.hop_interval)) },
+            textToValue = { it },
+            // Enable when ports look like a range/list (not a pure integer).
+            enabled = uiState.ports.toIntOrNull() == null,
+            icon = {
+                MaskedIcon(Res.drawable.timelapse, IconMaskColors.IconLightOrange)
+            },
+            summary = { Text(contentOrUnset(uiState.hopInterval)) },
+            valueToText = { it },
             textField = { state, onOk ->
-                UIntegerTextField(state, onOk)
+                DurationTextField(state, onOk)
             },
         )
         TextFieldPreference(
