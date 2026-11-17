@@ -2,7 +2,6 @@
 package pluginoption
 
 const (
-	TypeJuicity     = "juicity"
 	TypeTrustTunnel = "trusttunnel"
 	TypeBalancer    = "balancer"
 	TypeAnchor      = "anchor"
