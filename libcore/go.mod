@@ -20,7 +20,6 @@ replace (
 require (
 	filippo.io/age v1.3.2
 	github.com/coder/websocket v1.8.15
-	github.com/exclavenetwork/sing-juicity v0.3.1
 	github.com/godbus/dbus/v5 v5.2.2
 	github.com/google/licensecheck v0.3.1
 	github.com/miekg/dns v1.1.72
