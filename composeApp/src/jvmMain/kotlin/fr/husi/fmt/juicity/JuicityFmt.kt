@@ -68,9 +68,8 @@ fun JuicityBean.toUri(): String = buildUrl("juicity") {
 /**
  * 生成 juicity-client 插件配置。
  * 与可用 Windows 客户端对齐：
- * - ports: "3000-3100"
- * - hop_interval: 数字秒（如 10）
- * 同时写入 server_ports，兼容旧字段。
+ * - hopping 时 server 为纯主机；ports / server_ports 为范围
+ * - hop_interval 为数字秒（如 10）
  */
 fun JuicityBean.buildJuicityConfig(port: Int, shouldProtect: Boolean): String {
     val portsSpec = serverPorts.ifBlank { serverPort.toString() }
@@ -114,7 +113,7 @@ fun JuicityBean.buildJuicityConfig(port: Int, shouldProtect: Boolean): String {
     }.toJsonStringKxs()
 }
 
-/** "30s" / "30" / "1m" -> 秒；默认 30 */
+/** "30s" / "30" / "1m" / "5000ms" -> 秒；默认 30；最小 5 */
 private fun parseHopIntervalSeconds(raw: String): Int {
     val s = raw.trim().ifBlank { "30s" }
     s.toIntOrNull()?.let { return it.coerceAtLeast(5) }
